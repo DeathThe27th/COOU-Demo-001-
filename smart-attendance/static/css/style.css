@@ -71,8 +71,6 @@ body {
 }
 
 h1 { font-size: 1.375rem; font-weight: 700; letter-spacing: -0.015em; }
-.container > h1 { margin-bottom: 0.3rem; }
-.container > h1 + .muted, .container > .muted:first-child { margin-bottom: 1.1rem; }
 h2 { font-size: 1rem; font-weight: 650; letter-spacing: -0.01em; }
 h1, h2, h3 { text-wrap: balance; color: var(--ink); }
 .muted { color: var(--ink-3); font-size: 0.875rem; }
@@ -241,6 +239,56 @@ a { color: var(--green-700); }
   .container { padding: 1.2rem 1rem 2rem; }
 }
 
+/* ============ page header ============ */
+
+/* Every screen opens with a real <h1>, a one-line explanation of what the page
+   is for, and its primary action. Before this the pages started cold at a card
+   with the only title living in the top bar, which read as undifferentiated. */
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem 1.25rem;
+  flex-wrap: wrap;
+  padding-bottom: 1.15rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.page-head-text { flex: 1 1 22rem; min-width: 0; }
+.page-head h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  line-height: 1.2;
+}
+.page-head p {
+  color: var(--ink-3);
+  font-size: 0.875rem;
+  max-width: 62ch;
+  margin-top: 0.28rem;
+  text-wrap: pretty;
+}
+.page-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+/* Metadata line under a record title (matric no · department · level). */
+.page-head-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.7rem;
+  margin-top: 0.5rem;
+  font-size: 0.83rem;
+  color: var(--ink-3);
+}
+.page-head-meta > * + *::before {
+  content: "·";
+  margin-right: 0.7rem;
+  color: var(--border-2);
+}
+
 /* ============ cards ============ */
 
 .card {
@@ -267,7 +315,7 @@ a { color: var(--green-700); }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-1);
-  padding: 1.05rem 1.2rem 1rem;
+  padding: 1.15rem 1.25rem 1.1rem;
   margin-bottom: 0;
 }
 .stat-label {
@@ -279,18 +327,89 @@ a { color: var(--green-700); }
   justify-content: space-between;
   gap: 0.5rem;
 }
-.stat-label svg { width: 18px; height: 18px; color: var(--green-600); }
+/* The icon sits in a tinted chip rather than floating loose against the card
+   edge, which gives the tile a fixed optical anchor at every grid width. */
+.stat-label svg {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  padding: 7px;
+  border-radius: 9px;
+  background: var(--green-50);
+  color: var(--green-700);
+  overflow: visible;
+}
 .stat-num {
-  font-size: 1.85rem;
+  font-size: 2.15rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
   color: var(--ink);
-  margin-top: 0.15rem;
+  margin-top: 0.5rem;
   font-variant-numeric: tabular-nums;
 }
-.stat-hint { font-size: 0.76rem; color: var(--ink-3); margin-top: 0.1rem; }
+.stat-hint { font-size: 0.78rem; color: var(--ink-3); margin-top: 0.2rem; }
 .stat-warn .stat-num { color: var(--danger); }
-.stat-warn .stat-label svg { color: var(--danger); }
+.stat-warn .stat-label svg { background: var(--danger-bg); color: var(--danger); }
+
+/* Two panels side by side on wide screens, stacked below. Collapses at the
+   width where two columns would start squeezing the lane rows. */
+.col-2 {
+  display: grid;
+  /* min() keeps the 24rem floor from exceeding the viewport on narrow screens,
+     which would otherwise push the whole page into horizontal scroll. */
+  grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr));
+  gap: 1.25rem;
+  align-items: start;
+}
+.col-2 > .card { margin-bottom: 0; }
+
+.card-sub { margin: -0.5rem 0 0.9rem; }
+.card-foot { margin-top: 0.85rem; font-size: 0.83rem; }
+
+/* ============ lane: compact record rows ============ */
+
+/* A lighter alternative to a table for short dashboard lists, where a full
+   header row would cost more than it explains. */
+.lane { list-style: none; }
+.lane li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.62rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.lane li:last-child { border-bottom: 0; }
+.lane li:first-child { padding-top: 0; }
+
+.lane-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+.lane-main strong {
+  font-size: 0.885rem;
+  font-weight: 600;
+  color: var(--ink);
+  /* Long Nigerian double-barrelled names are common in this data set and must
+     truncate rather than wrap the row into two lines. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lane-main .muted { font-size: 0.78rem; }
+.lane-num {
+  font-size: 0.885rem;
+  font-weight: 650;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.lane-num .muted { font-weight: 400; font-size: 0.78rem; }
+.lane .pill { flex-shrink: 0; }
+.lane .btn { flex-shrink: 0; }
 
 /* ============ forms ============ */
 
@@ -400,20 +519,43 @@ input:focus, select:focus, textarea:focus {
 /* ============ tables ============ */
 
 table { width: 100%; border-collapse: collapse; font-size: 0.885rem; }
-th, td { text-align: left; padding: 0.6rem 0.65rem; border-bottom: 1px solid var(--border); }
+th, td { text-align: left; padding: 0.68rem 0.7rem; border-bottom: 1px solid var(--border); }
 th {
   color: var(--ink-3);
   font-size: 0.71rem;
   font-weight: 650;
   text-transform: uppercase;
   letter-spacing: 0.055em;
+  /* A firmer rule under the header separates chrome from data; the row borders
+     stay hairline so the body reads as one block rather than a stack of bands. */
+  border-bottom-color: var(--border-2);
+  white-space: nowrap;
 }
 tbody tr { transition: background 120ms var(--ease); }
-tbody tr:hover { background: var(--bg); }
+tbody tr:hover { background: var(--green-50); }
 tbody tr:last-child td { border-bottom: 0; }
 td { font-variant-numeric: tabular-nums; }
 
-.table-scroll { overflow-x: auto; }
+/* The first column is the record's identity (matric no, course code) in every
+   table here. Weighting it makes a dense table scannable by eye. */
+tbody td:first-child { font-weight: 600; color: var(--ink); }
+
+/* Row actions sit in the final column and read better flushed right. */
+th:last-child:empty, td:last-child:has(.btn), td:last-child:has(.inline-form) {
+  text-align: right;
+}
+td:last-child .inline-form { justify-content: flex-end; margin-bottom: 0; }
+
+/* Bleed the scroll container to the card's edges so a clipped table looks
+   intentional rather than cut off mid-padding. */
+.table-scroll {
+  overflow-x: auto;
+  margin-inline: -1.35rem;
+  padding-inline: 1.35rem;
+}
+@media (max-width: 900px) {
+  .table-scroll { margin-inline: -1rem; padding-inline: 1rem; }
+}
 
 /* ============ empty states ============ */
 
@@ -466,6 +608,18 @@ td { font-variant-numeric: tabular-nums; }
   content: "";
   width: 6px; height: 6px; border-radius: 50%;
   background: currentColor;
+  flex-shrink: 0;
+}
+
+/* An open session is the one piece of genuinely live state in the app — the
+   kiosk is accepting faces right now. The halo says so at a glance; the global
+   reduced-motion rule already collapses it to a plain dot. */
+.pill-live::before { animation: live-halo 2.4s var(--ease) infinite; }
+
+@keyframes live-halo {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 55%, transparent); }
+  70%  { box-shadow: 0 0 0 5px color-mix(in srgb, var(--success) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 0%, transparent); }
 }
 
 /* ============ flash messages ============ */
@@ -546,7 +700,8 @@ td { font-variant-numeric: tabular-nums; }
   text-align: center;
   font-size: 0.82rem;
   color: var(--ink-3);
-  margin: 0.2rem 0 1.4rem;
+  margin: 0.35rem 0 1.4rem;
+  line-height: 1.5;
 }
 .auth-card {
   background: var(--surface);

@@ -1,6 +1,25 @@
 {% extends "base.html" %}
 {% block title %}Reports{% endblock %}
 {% block content %}
+<div class="page-head">
+  <div class="page-head-text">
+    <h1>Reports</h1>
+    <p>Cumulative attendance per course. The spreadsheet pivots students against
+      every session, with an attendance % column per student.</p>
+  </div>
+  {% if course_id %}
+  <div class="page-head-actions">
+    <a class="btn btn-primary"
+       href="{{ url_for('lecturer.export_xlsx', course_id=course_id) }}">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3.5v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4.5 19.5h15"/>
+      </svg>
+      Download .xlsx</a>
+  </div>
+  {% endif %}
+</div>
+
 <div class="card">
   <form method="get" class="inline-form">
     <label>Course
@@ -11,11 +30,9 @@
         {% endfor %}
       </select>
     </label>
-    {% if course_id %}
-    <a class="btn btn-primary"
-       href="{{ url_for('lecturer.export_xlsx', course_id=course_id) }}">
-       Download .xlsx (students × sessions × %)</a>
-    {% endif %}
+    {# No-JS fallback: the select auto-submits, but keyboard and no-script users
+       need a real submit control. #}
+    <noscript><button class="btn" type="submit">Show</button></noscript>
   </form>
 </div>
 

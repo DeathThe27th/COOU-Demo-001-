@@ -1,5 +1,6 @@
 """Admin: student enrollment (webcam), courses, settings, manual corrections."""
 import json
+from datetime import datetime
 
 from flask import (Blueprint, flash, jsonify, redirect, render_template, request,
                    url_for)
@@ -15,16 +16,39 @@ bp = Blueprint("admin", __name__, url_prefix="/admin")
 @bp.route("/")
 @role_required("admin")
 def dashboard():
+    flagged = reports.flagged_records()
+
+    # Students who cannot verify at the kiosk yet, by the same rule the students
+    # page uses (shots < MIN_ENROLL_SHOTS). Embeddings are JSON, so the count
+    # happens here rather than in SQL.
+    awaiting = []
+    for r in db.query_db("SELECT StudentID, FullName, MatricNo, Department, "
+                         "FaceEmbeddings FROM Student ORDER BY MatricNo"):
+        shots = len(json.loads(r["FaceEmbeddings"] or "[]"))
+        if shots < config.MIN_ENROLL_SHOTS:
+            awaiting.append(db.Row(r, Shots=shots))
+
+    recent_sessions = db.query_db(
+        "SELECT s.SessionID, s.Date, s.StartTime, s.EndTime, "
+        "       c.CourseCode, c.CourseName, "
+        "       (SELECT COUNT(*) FROM Attendance a "
+        "        WHERE a.SessionID = s.SessionID AND a.Status = 'present') PresentCount "
+        "FROM Session s JOIN Course c ON c.CourseID = s.CourseID "
+        "ORDER BY s.StartTime DESC LIMIT 6")
+
     stats = {
         "students": db.query_db("SELECT COUNT(*) c FROM Student", one=True)["c"],
         "enrolled": db.query_db(
             "SELECT COUNT(*) c FROM Student WHERE FaceEmbeddings IS NOT NULL "
             "AND FaceEmbeddings != '[]'", one=True)["c"],
         "courses": db.query_db("SELECT COUNT(*) c FROM Course", one=True)["c"],
-        "flagged": len(reports.flagged_records()),
+        "flagged": len(flagged),
     }
     return render_template("dashboard.html", role="admin", stats=stats,
-                           flagged=reports.flagged_records())
+                           flagged=flagged, awaiting=awaiting,
+                           recent_sessions=recent_sessions,
+                           min_shots=config.MIN_ENROLL_SHOTS,
+                           now=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 
 # ---------- students ----------

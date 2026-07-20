@@ -1,21 +1,27 @@
 {% extends "base.html" %}
 {% block title %}Session {{ sess.SessionID }}{% endblock %}
 {% block content %}
-<h1>{{ sess.CourseCode }} — {{ sess.CourseName }}</h1>
-<p class="muted">{{ sess.Date }} · {{ sess.StartTime[11:16] }}–{{ sess.EndTime[11:16] }}
-  {% if active %}<span class="pill pill-green">active</span>
-  {% else %}<span class="pill">closed</span>{% endif %}</p>
-
-<div class="inline-form">
-  {% if active %}
-  <a class="btn btn-primary" target="_blank"
-     href="{{ url_for('student.kiosk', session_id=sess.SessionID) }}">Open attendance kiosk</a>
-  <form method="post" action="{{ url_for('lecturer.close_session', session_id=sess.SessionID) }}">
-    <button class="btn btn-danger" type="submit">Close session</button>
-  </form>
-  {% endif %}
-  <a class="btn" href="{{ url_for('lecturer.export_xlsx', course_id=sess.CourseID) }}">
-    Export course .xlsx</a>
+<div class="page-head">
+  <div class="page-head-text">
+    <h1>{{ sess.CourseCode }} — {{ sess.CourseName }}</h1>
+    <div class="page-head-meta">
+      <span>{{ sess.Date }}</span>
+      <span>{{ sess.StartTime[11:16] }}–{{ sess.EndTime[11:16] }}</span>
+      <span>{% if active %}<span class="pill pill-green pill-live">active</span>
+        {% else %}<span class="pill">closed</span>{% endif %}</span>
+    </div>
+  </div>
+  <div class="page-head-actions">
+    {% if active %}
+    <a class="btn btn-primary" target="_blank"
+       href="{{ url_for('student.kiosk', session_id=sess.SessionID) }}">Open attendance kiosk</a>
+    <form method="post" action="{{ url_for('lecturer.close_session', session_id=sess.SessionID) }}">
+      <button class="btn btn-danger" type="submit">Close session</button>
+    </form>
+    {% endif %}
+    <a class="btn" href="{{ url_for('lecturer.export_xlsx', course_id=sess.CourseID) }}">
+      Export course .xlsx</a>
+  </div>
 </div>
 
 <div class="card">

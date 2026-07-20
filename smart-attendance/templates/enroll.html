@@ -1,7 +1,18 @@
 {% extends "base.html" %}
 {% block title %}Enroll {{ student.FullName }}{% endblock %}
 {% block content %}
-<p class="muted">{{ student.MatricNo }} · {{ student.Department }} · Level {{ student.Level }}</p>
+<div class="page-head">
+  <div class="page-head-text">
+    <h1>Enroll {{ student.FullName }}</h1>
+    <p>Capture {{ min_shots }}–{{ max_shots }} clear, well-lit shots. Face data is
+      stored as numeric embeddings, never as photographs.</p>
+    <div class="page-head-meta">
+      <span>{{ student.MatricNo }}</span>
+      <span>{{ student.Department }}</span>
+      <span>Level {{ student.Level }}</span>
+    </div>
+  </div>
+</div>
 
 <div class="card camera-card"
      data-mode="enroll"
@@ -16,9 +27,9 @@
     <span id="shot-count" class="pill">0 / {{ min_shots }} shots</span>
   </div>
   <div id="status" class="status-box" role="status" aria-live="polite" aria-atomic="true">Requesting camera…</div>
-  <p class="muted">Capture {{ min_shots }}–{{ max_shots }} clear, well-lit shots.
-    Vary the angle slightly between shots (straight, slight left, slight right,
-    slight up/down) for robust verification.</p>
+  <p class="muted">Vary the angle slightly between shots — straight on, slight
+    left, slight right, slight up and down. Varied angles are what make
+    verification hold up under different lighting and seating positions.</p>
 </div>
 
 <div class="inline-form">

@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Attendance Kiosk{% endblock %}
 {% block content %}
+<div class="page-head">
+  <div class="page-head-text">
+    <h1>Attendance kiosk</h1>
+    <p>Enter your matric number, then verify your face. If you are already marked
+      present the camera never opens.</p>
+  </div>
+</div>
+
 {% if not sessions %}
   <div class="card narrow">
     <p>No active session found.

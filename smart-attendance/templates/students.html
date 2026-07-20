@@ -2,6 +2,14 @@
 {% from "_macros.html" import empty_state %}
 {% block title %}Students{% endblock %}
 {% block content %}
+<div class="page-head">
+  <div class="page-head-text">
+    <h1>Students</h1>
+    <p>Everyone registered in the system. A student needs 5–8 clear face shots
+      before they can verify themselves at the attendance kiosk.</p>
+  </div>
+</div>
+
 <div class="card">
   <h2>Register new student</h2>
   <form method="post" action="{{ url_for('admin.add_student') }}" class="inline-form">

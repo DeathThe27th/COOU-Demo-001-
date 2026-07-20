@@ -1,8 +1,21 @@
 {% extends "base.html" %}
+{% from "_macros.html" import empty_state %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
 
 {% if role == 'admin' %}
+  <div class="page-head">
+    <div class="page-head-text">
+      <h1>Dashboard</h1>
+      <p>System overview across every department, and anything waiting on a
+        manual decision from you.</p>
+    </div>
+    <div class="page-head-actions">
+      <a class="btn" href="{{ url_for('admin.students') }}">Manage students</a>
+      <a class="btn btn-primary" href="{{ url_for('student.kiosk') }}">Open kiosk</a>
+    </div>
+  </div>
+
   <div class="stat-grid">
     <div class="stat">
       <div class="stat-label">Students
@@ -34,6 +47,64 @@
     </div>
   </div>
 
+  <div class="col-2">
+    <div class="card">
+      <h2>Awaiting face enrollment</h2>
+      {% if awaiting %}
+      <p class="muted card-sub">These students cannot verify at the kiosk until
+        they have {{ min_shots }} shots on file.</p>
+      <ul class="lane">
+        {% for s in awaiting[:6] %}
+        <li>
+          <span class="lane-main">
+            <strong>{{ s.FullName }}</strong>
+            <span class="muted">{{ s.MatricNo }}</span>
+          </span>
+          <span class="pill {{ 'pill-amber' if s.Shots else 'pill-red' }}">
+            {{ s.Shots }} / {{ min_shots }}</span>
+          <a class="btn btn-small"
+             href="{{ url_for('admin.enroll', student_id=s.StudentID) }}">Capture</a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% if awaiting|length > 6 %}
+      <p class="muted card-foot">
+        <a href="{{ url_for('admin.students') }}">{{ awaiting|length - 6 }} more
+          awaiting enrollment →</a></p>
+      {% endif %}
+      {% else %}
+        {{ empty_state("Everyone is enrolled",
+                       "Every registered student has enough face shots on file to
+                        verify at the kiosk.") }}
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h2>Recent sessions</h2>
+      {% if recent_sessions %}
+      <ul class="lane">
+        {% for s in recent_sessions %}
+        <li>
+          <span class="lane-main">
+            <strong>{{ s.CourseCode }}</strong>
+            <span class="muted">{{ s.Date }} · {{ s.StartTime[11:16] }}</span>
+          </span>
+          {% if s.StartTime <= now <= s.EndTime %}
+            <span class="pill pill-green pill-live">active</span>
+          {% else %}<span class="pill">closed</span>{% endif %}
+          <span class="lane-num">{{ s.PresentCount }}
+            <span class="muted">present</span></span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+        {{ empty_state("No sessions yet",
+                       "Once a lecturer opens an attendance session it appears
+                        here with a live present count.") }}
+      {% endif %}
+    </div>
+  </div>
+
   {% if flagged %}
   <div class="card">
     <h2>Flagged for manual review</h2>
@@ -56,6 +127,17 @@
   {% endif %}
 
 {% else %}
+
+  <div class="page-head">
+    <div class="page-head-text">
+      <h1>Dashboard</h1>
+      <p>Your courses, sessions and attendance. Everything here is yours alone —
+        other lecturers cannot see it.</p>
+    </div>
+    <div class="page-head-actions">
+      <a class="btn" href="{{ url_for('lecturer.report_view') }}">Reports</a>
+    </div>
+  </div>
 
   <div class="card">
     <h2>Open a new attendance session</h2>
@@ -124,7 +206,7 @@
             <td>{{ s.StartTime[11:16] }}</td><td>{{ s.EndTime[11:16] }}</td>
             <td>{{ s.PresentCount }}</td>
             <td>{% if s.StartTime <= now <= s.EndTime %}
-                <span class="pill pill-green">active</span>
+                <span class="pill pill-green pill-live">active</span>
                 {% else %}<span class="pill">closed</span>{% endif %}</td>
             <td><a class="btn btn-small"
                    href="{{ url_for('lecturer.session_detail', session_id=s.SessionID) }}">View</a></td>

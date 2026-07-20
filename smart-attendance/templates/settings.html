@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Settings{% endblock %}
 {% block content %}
+<div class="page-head">
+  <div class="page-head-text">
+    <h1>Settings</h1>
+    <p>System-wide thresholds, stored in the database. Changes take effect on the
+      next verification — no restart needed.</p>
+  </div>
+</div>
+
 <div class="card narrow">
   <form method="post" class="stack">
     <label>Face similarity threshold (0–1)

@@ -2,6 +2,14 @@
 {% from "_macros.html" import empty_state %}
 {% block title %}Courses{% endblock %}
 {% block content %}
+<div class="page-head">
+  <div class="page-head-text">
+    <h1>Courses</h1>
+    <p>Every course across all departments. Assign a lecturer so they can open
+      attendance sessions and pull reports for it.</p>
+  </div>
+</div>
+
 <div class="card">
   <h2>Add course</h2>
   <form method="post" action="{{ url_for('admin.add_course') }}" class="inline-form">

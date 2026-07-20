@@ -3,8 +3,17 @@
 {% block title %}My Attendance{% endblock %}
 {% block content %}
 {% if student %}
-<p class="muted">{{ student.FullName }} · {{ student.MatricNo }} ·
-  {{ student.Department }} · Level {{ student.Level }}</p>
+<div class="page-head">
+  <div class="page-head-text">
+    <h1>My attendance</h1>
+    <div class="page-head-meta">
+      <span>{{ student.FullName }}</span>
+      <span>{{ student.MatricNo }}</span>
+      <span>{{ student.Department }}</span>
+      <span>Level {{ student.Level }}</span>
+    </div>
+  </div>
+</div>
 <div class="card">
   {% if history %}
   <div class="table-scroll">

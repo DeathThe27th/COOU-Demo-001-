@@ -1,8 +1,19 @@
 {% extends "base.html" %}
 {% block title %}{{ course.CourseCode }} students{% endblock %}
 {% block content %}
-<p class="muted">{{ course.CourseCode }} — {{ course.CourseName }}
-  {% if course.Department %} · {{ course.Department }}{% endif %}</p>
+<div class="page-head">
+  <div class="page-head-text">
+    <h1>{{ course.CourseCode }} — {{ course.CourseName }}</h1>
+    <p>Only students on this list can mark attendance in your sessions, and your
+      reports cover exactly this list.</p>
+    {% if course.Department %}
+    <div class="page-head-meta"><span>{{ course.Department }}</span></div>
+    {% endif %}
+  </div>
+  <div class="page-head-actions">
+    <a class="btn" href="{{ url_for('lecturer.dashboard') }}">Back to dashboard</a>
+  </div>
+</div>
 
 <div class="card">
   <h2>Add a student to this course</h2>
@@ -70,6 +81,4 @@
     exactly this list.</p>
   {% endif %}
 </div>
-
-<a class="btn" href="{{ url_for('lecturer.dashboard') }}">Back to dashboard</a>
 {% endblock %}

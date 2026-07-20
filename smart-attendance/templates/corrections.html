@@ -2,6 +2,14 @@
 {% from "_macros.html" import empty_state %}
 {% block title %}Manual corrections{% endblock %}
 {% block content %}
+<div class="page-head">
+  <div class="page-head-text">
+    <h1>Manual corrections</h1>
+    <p>Override attendance by hand for students the kiosk flagged after three
+      failed attempts, or who could not verify at all.</p>
+  </div>
+</div>
+
 {% if flagged %}
 <div class="card alert-card">
   <h2>Flagged for manual review</h2>
