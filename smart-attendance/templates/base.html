@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Omnipresent{% endblock %} — Omnipresent by COOU</title>
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/logo.svg') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -34,7 +34,7 @@
 
   <aside class="sidebar">
     <a class="sidebar-brand" href="{{ url_for('auth.home') }}">
-      <img src="{{ url_for('static', filename='img/coou-crest.png') }}" alt="COOU crest">
+      <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Omnipresent">
       <span class="brand-name">OMNIPRESENT
         <span class="brand-sub">by COOU</span>
       </span>
@@ -101,9 +101,6 @@
       {% block content %}{% endblock %}
     </main>
 
-    <footer class="footer">
-      Omnipresent by COOU — attendance verified by facial recognition · runs fully offline
-    </footer>
   </div>
 </div>
 

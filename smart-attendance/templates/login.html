@@ -4,17 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign in — Omnipresent by COOU</title>
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/logo.svg') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="auth-body">
   <div class="auth-panel">
     <div class="auth-crest auth-crest-lg">
-      <img src="{{ url_for('static', filename='img/coou-crest.png') }}" alt="COOU crest">
+      <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Omnipresent">
     </div>
-    <h1 class="auth-title">Omnipresent</h1>
-    <p class="auth-sub">Attendance by facial recognition<br>
-      Chukwuemeka Odumegwu Ojukwu University</p>
+    {# Visually hidden, not deleted: a page with no heading at all leaves screen
+       reader users without a document structure to navigate. #}
+    <h1 class="sr-only">Sign in to Omnipresent</h1>
 
     <div class="auth-card">
       {% with messages = get_flashed_messages(with_categories=true) %}
@@ -39,8 +39,7 @@
     </div>
 
     <p class="auth-foot">
-      Education for Development · Knowledge · Wisdom · Service<br>
-      Dept. of Computer Science, COOU Uli — runs fully offline
+      Education for Development · Knowledge · Wisdom · Service
     </p>
   </div>
 </body>

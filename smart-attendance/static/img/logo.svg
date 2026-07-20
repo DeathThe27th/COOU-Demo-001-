@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Omnipresent">
+  <title>Omnipresent</title>
+  <!-- Face-detection frame: the four corner brackets the app draws around a
+       detected face. Specific to what this product does, rather than a generic
+       badge or shield. -->
+  <g fill="none" stroke="#1a5c3a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 17v-6a5 5 0 0 1 5-5h6"/>
+    <path d="M31 6h6a5 5 0 0 1 5 5v6"/>
+    <path d="M42 31v6a5 5 0 0 1-5 5h-6"/>
+    <path d="M17 42h-6a5 5 0 0 1-5-5v-6"/>
+  </g>
+  <!-- Verified present. Gold picks up the second brand colour so the mark reads
+       as two-tone at large sizes and still holds as one shape when small. -->
+  <path d="M16.5 24.5 21.5 29.5 31.5 19.5" fill="none" stroke="#eda51c"
+        stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -59,6 +59,35 @@ The database is created and seeded automatically on first run.
 Five demo students (2021/CS/001 … 005) are pre-seeded **without face data** —
 enroll their faces live via *Students → Capture face* (5–8 shots each).
 
+### Bulk registration from CSV
+
+*Students → Bulk import from CSV* registers a whole class at once. The file needs
+two columns, full name and matric number:
+
+```csv
+Full Name,Matric No
+Somto Okafor,2021/CS/001
+Adaeze Nwosu,2021/CS/002
+```
+
+The parser is deliberately forgiving, because these lists come out of Excel,
+Google Sheets and departmental portals in different shapes:
+
+- a header row is recognised but **not required**
+- the two columns may be in **either order** (detected by which one contains digits)
+- header spellings including `Name`, `Full Name`, `Matric No`, `Reg No`,
+  `Registration Number` and `Student ID`
+- comma, semicolon or tab delimited
+- Excel's UTF-8 BOM, and cp1252/latin-1 encodings
+
+Department and level are set once for the whole batch on the import form. Matric
+numbers that already exist are **skipped, not duplicated**, so re-uploading a
+corrected list is safe. Rows missing a name or matric number are skipped and
+reported by line number; the rest still import. Every imported student gets a
+portal login (username = matric number, password `student123`).
+
+There is a *Download a template CSV* link on the import card.
+
 ## Demo walkthrough
 
 1. **Admin** logs in → *Students* → capture 5–8 webcam shots per student.

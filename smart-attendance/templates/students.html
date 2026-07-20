@@ -22,6 +22,35 @@
 </div>
 
 <div class="card">
+  <h2>Bulk import from CSV</h2>
+  <p class="muted card-sub">Two columns — full name and matric number. A header
+    row is recognised but not required, and the columns may be in either order.
+    Matric numbers already registered are skipped, so re-uploading a corrected
+    list is safe.</p>
+
+  <form method="post" action="{{ url_for('admin.import_students') }}"
+        enctype="multipart/form-data" class="inline-form">
+    <label>CSV file
+      <input type="file" name="csv_file" accept=".csv,text/csv" required>
+    </label>
+    <label>Department <span class="muted">(applied to all)</span>
+      <input type="text" name="department" value="Computer Science">
+    </label>
+    <label>Level <span class="muted">(applied to all)</span>
+      <input type="text" name="level" value="400" size="4">
+    </label>
+    <button class="btn btn-primary" type="submit">Import students</button>
+  </form>
+
+  <p class="muted card-foot">
+    Not sure of the format?
+    <a href="{{ url_for('admin.students_template') }}">Download a template CSV</a>.
+    Every imported student gets a portal login — username is their matric number,
+    password <code>student123</code>.
+  </p>
+</div>
+
+<div class="card">
   {% if not students %}
     {{ empty_state(
          "No students registered yet",

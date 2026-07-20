@@ -6,9 +6,6 @@
     <h1>{{ course.CourseCode }} — {{ course.CourseName }}</h1>
     <p>Only students on this list can mark attendance in your sessions, and your
       reports cover exactly this list.</p>
-    {% if course.Department %}
-    <div class="page-head-meta"><span>{{ course.Department }}</span></div>
-    {% endif %}
   </div>
   <div class="page-head-actions">
     <a class="btn" href="{{ url_for('lecturer.dashboard') }}">Back to dashboard</a>

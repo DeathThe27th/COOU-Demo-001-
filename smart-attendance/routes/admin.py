@@ -2,12 +2,12 @@
 import json
 from datetime import datetime
 
-from flask import (Blueprint, flash, jsonify, redirect, render_template, request,
-                   url_for)
+from flask import (Blueprint, Response, flash, jsonify, redirect, render_template,
+                   request, url_for)
 from werkzeug.security import generate_password_hash
 
 import config
-from modules import db, detection, embedding, reports
+from modules import db, detection, embedding, reports, roster_import
 from routes.auth import role_required
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -90,6 +90,70 @@ def add_student():
     )
     flash(f"Student {name} added. Now capture their face shots.", "success")
     return redirect(url_for("admin.enroll", student_id=sid))
+
+
+@bp.route("/students/template.csv")
+@role_required("admin")
+def students_template():
+    """A correctly-shaped example file. Format confusion is the main reason a
+    bulk import fails, so hand out the answer rather than describing it."""
+    return Response(
+        roster_import.template_csv(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=student-roster-template.csv"},
+    )
+
+
+@bp.route("/students/import", methods=["POST"])
+@role_required("admin")
+def import_students():
+    """Bulk-register students from a CSV of names and matric numbers."""
+    upload = request.files.get("csv_file")
+    if not upload or not upload.filename:
+        flash("Choose a CSV file to import.", "error")
+        return redirect(url_for("admin.students"))
+
+    rows, problems = roster_import.parse(upload.read())
+    if not rows:
+        flash("Nothing imported. " + (problems[0] if problems else "No rows found."),
+              "error")
+        return redirect(url_for("admin.students"))
+
+    department = request.form.get("department", "").strip()
+    level = request.form.get("level", "").strip()
+
+    # One query for every existing matric number, rather than one per row.
+    existing = {r["MatricNo"] for r in db.query_db("SELECT MatricNo FROM Student")}
+
+    added, duplicates, seen = 0, 0, set()
+    for name, matric in rows:
+        if matric in existing or matric in seen:
+            duplicates += 1
+            continue
+        seen.add(matric)
+        sid = db.execute_db(
+            "INSERT INTO Student (FullName, MatricNo, Department, Level) "
+            "VALUES (?, ?, ?, ?)", (name, matric, department, level))
+        # student portal account, matching the single-student form
+        db.execute_db(
+            "INSERT OR IGNORE INTO User (Username, PasswordHash, Role, FullName, "
+            "LinkedStudentID) VALUES (?, ?, 'student', ?, ?)",
+            (matric, generate_password_hash("student123"), name, sid))
+        added += 1
+
+    if added:
+        flash(f"Imported {added} student{'s' if added != 1 else ''}. "
+              "Capture face shots next — they cannot verify at the kiosk until you do.",
+              "success")
+    if duplicates:
+        flash(f"Skipped {duplicates} row{'s' if duplicates != 1 else ''} "
+              "already registered with that matric number.", "info")
+    if problems:
+        shown = "; ".join(problems[:5])
+        more = f" (+{len(problems) - 5} more)" if len(problems) > 5 else ""
+        flash(f"{len(problems)} row{'s' if len(problems) != 1 else ''} skipped — "
+              f"{shown}{more}", "error")
+    return redirect(url_for("admin.students"))
 
 
 @bp.route("/enroll/<int:student_id>")

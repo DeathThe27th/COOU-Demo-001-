@@ -349,3 +349,77 @@ def test_real_pipeline_no_face_in_blank_image():
     from modules import detection
     blank = np.full((480, 640, 3), 128, dtype=np.uint8)
     assert detection.detect_largest_face(blank) is None
+
+
+# ---------- roster CSV import ----------
+
+@pytest.mark.parametrize("raw,expected", [
+    # header row, canonical spelling
+    (b"Full Name,Matric No\nSomto Okafor,2021/CS/001\n",
+     [("Somto Okafor", "2021/CS/001")]),
+    # columns in the opposite order
+    (b"Matric No,Full Name\n2021/CS/002,Adaeze Nwosu\n",
+     [("Adaeze Nwosu", "2021/CS/002")]),
+    # alternative header spellings lecturers actually use
+    (b"NAMES,Reg. Number\nIfeoma Obi,2021/CS/003\n",
+     [("Ifeoma Obi", "2021/CS/003")]),
+    # no header at all
+    (b"Emeka Uche,2021/CS/004\n", [("Emeka Uche", "2021/CS/004")]),
+    # no header, matric in the first column
+    (b"2021/CS/005,Chidi Ade\n", [("Chidi Ade", "2021/CS/005")]),
+    # semicolon delimited, as some portals export
+    (b"Full Name;Matric No\nUche Nwosu;2021/CS/006\n",
+     [("Uche Nwosu", "2021/CS/006")]),
+    # Excel's UTF-8 BOM must not corrupt the first header cell
+    (b"\xef\xbb\xbfFull Name,Matric No\nAda Eze,2021/CS/007\n",
+     [("Ada Eze", "2021/CS/007")]),
+    # blank lines dropped, internal whitespace collapsed
+    (b"Full Name,Matric No\n\n  Bola   Okon , 2021/CS/008 \n",
+     [("Bola Okon", "2021/CS/008")]),
+])
+def test_roster_csv_parses_real_world_shapes(raw, expected):
+    from modules import roster_import
+    rows, _ = roster_import.parse(raw)
+    assert rows == expected
+
+
+def test_roster_csv_reports_incomplete_rows_without_dropping_good_ones():
+    from modules import roster_import
+    rows, problems = roster_import.parse(
+        b"Full Name,Matric No\nNo Matric,\n,2021/CS/009\nGood One,2021/CS/010\n")
+    assert rows == [("Good One", "2021/CS/010")]
+    assert len(problems) == 2
+
+
+def test_roster_csv_empty_file_is_reported_not_crashed():
+    from modules import roster_import
+    rows, problems = roster_import.parse(b"")
+    assert rows == [] and problems
+
+
+def test_import_creates_students_and_skips_duplicates(client, app):
+    import io
+    from modules import db
+    client.post("/login", data={"username": "admin", "password": "admin123"},
+                follow_redirects=True)
+    csv = b"Full Name,Matric No\nBulk One,BULK/001\nBulk Two,BULK/002\n"
+
+    def upload():
+        return client.post(
+            "/admin/students/import",
+            data={"csv_file": (io.BytesIO(csv), "roster.csv"),
+                  "department": "Computer Science", "level": "400"},
+            content_type="multipart/form-data", follow_redirects=True)
+
+    upload()
+    with app.app_context():
+        assert db.query_db("SELECT COUNT(*) c FROM Student WHERE MatricNo LIKE 'BULK/%'",
+                           one=True)["c"] == 2
+        # each imported student gets a portal login keyed on their matric number
+        assert db.query_db("SELECT 1 FROM User WHERE Username = ?",
+                           ("BULK/001",), one=True)
+
+    upload()  # re-uploading the same list must not duplicate anyone
+    with app.app_context():
+        assert db.query_db("SELECT COUNT(*) c FROM Student WHERE MatricNo LIKE 'BULK/%'",
+                           one=True)["c"] == 2
