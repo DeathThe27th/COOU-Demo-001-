@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Attendance Kiosk{% endblock %}
+{% block content %}
+{% if not sessions %}
+  <div class="card narrow">
+    <p>No active session found.
+      {% if current_user.Role in ('lecturer', 'admin') %}
+      Open a session from your <a href="{{ url_for('lecturer.dashboard') }}">dashboard</a>
+      first, then return here.
+      {% else %}
+      Wait for your lecturer to open one.
+      {% endif %}
+    </p>
+  </div>
+{% else %}
+<div class="card camera-card narrow"
+     data-mode="verify"
+     data-check-url="{{ url_for('student.kiosk_check') }}"
+     data-verify-url="{{ url_for('student.kiosk_verify') }}">
+
+  <div id="step-matric">
+    <div class="stack">
+      <label>Session
+        <select id="session-select">
+          {% for s in sessions %}
+            <option value="{{ s.SessionID }}"
+              {% if preselected == s.SessionID %}selected{% endif %}>
+              {{ s.CourseCode }} — {{ s.CourseName }} ({{ s.Date }})
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Your matric number
+        <input type="text" id="matric-input" placeholder="e.g. 2021/CS/001"
+               autocomplete="off" autofocus>
+      </label>
+      <button id="btn-check" class="btn btn-primary">Continue</button>
+    </div>
+  </div>
+
+  <div id="step-camera" hidden>
+    <div class="camera-wrap">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas id="canvas" hidden></canvas>
+    </div>
+    <div class="camera-controls">
+      <button id="btn-verify" class="btn btn-primary">Verify my face</button>
+      <button id="btn-back" class="btn">Back</button>
+    </div>
+  </div>
+
+  {# role=status + aria-live: verification outcome is conveyed only through this
+     box, so it must be announced, not just rendered. #}
+  <div id="status" class="status-box" role="status" aria-live="polite" aria-atomic="true"></div>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/capture.js') }}"></script>
+{% endblock %}

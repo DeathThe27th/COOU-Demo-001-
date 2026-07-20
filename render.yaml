@@ -1,0 +1,46 @@
+# Render Blueprint — Omnipresent by COOU
+#
+# Deploy: Render Dashboard -> New -> Blueprint -> pick this repo.
+# Render reads this file; the only thing you supply by hand is DATABASE_URL.
+#
+# Why a container and not a serverless function: this app loads a 38 MB SFace
+# ONNX model and keeps it resident. On a serverless platform that model reloads
+# on every cold start, which blows past the 2-3 s verification target in
+# build.md. Measured peak RSS with OpenCV, pandas and both models loaded is
+# ~206 MB, comfortably inside the free tier's 512 MB.
+
+services:
+  - type: web
+    name: omnipresent-attendance
+    runtime: python
+    plan: free
+    # Frankfurt is Render's EU region, nearest to the Supabase project in
+    # eu-west-1. Keeps round-trip latency off the verification path.
+    region: frankfurt
+    rootDir: smart-attendance
+
+    # setup_models.py fetches the YuNet + SFace ONNX files. They are gitignored
+    # (38 MB) so they are never in the repo and must be pulled at build time.
+    # It is idempotent and skips anything already present.
+    buildCommand: pip install -r requirements.txt && python setup_models.py
+
+    # Waitress, not `flask run`. serve.py reads $PORT, which Render sets.
+    startCommand: python serve.py
+
+    healthCheckPath: /login
+
+    envVars:
+      # Set this yourself in the Render dashboard (Environment tab).
+      # Use the Supabase *Session pooler* string (IPv4 — the direct-connection
+      # host is IPv6-only and will not resolve from Render), and percent-encode
+      # any reserved characters in the password: @ -> %40, : -> %3A, / -> %2F.
+      - key: DATABASE_URL
+        sync: false
+
+      # Generated once by Render and then held stable. Signs Flask session
+      # cookies; if it changes, everyone is logged out.
+      - key: SECRET_KEY
+        generateValue: true
+
+      - key: PYTHON_VERSION
+        value: "3.11.9"

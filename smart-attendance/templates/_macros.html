@@ -1,0 +1,23 @@
+{# Shared UI partials. Import at the top of a template:
+     {% from "_macros.html" import empty_state %}
+   Keeping these in one place stops the same markup drifting apart across
+   the eight list views that can legitimately render zero rows. #}
+
+{# An empty state that teaches the next action instead of announcing emptiness.
+   `action_url` / `action_label` are optional; omit them when the relevant
+   action already sits directly above the list (an add form, for instance). #}
+{% macro empty_state(title, body, action_url=None, action_label=None) -%}
+<div class="empty">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <rect x="3.5" y="5" width="17" height="14.5" rx="2.5"/>
+    <path d="M3.5 10h17"/>
+    <path d="M9 14.5h6"/>
+  </svg>
+  <strong>{{ title }}</strong>
+  <p>{{ body }}</p>
+  {% if action_url and action_label %}
+    <a class="btn btn-small btn-primary" href="{{ action_url }}">{{ action_label }}</a>
+  {% endif %}
+</div>
+{%- endmacro %}

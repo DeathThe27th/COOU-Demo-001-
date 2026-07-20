@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Enroll {{ student.FullName }}{% endblock %}
+{% block content %}
+<p class="muted">{{ student.MatricNo }} · {{ student.Department }} · Level {{ student.Level }}</p>
+
+<div class="card camera-card"
+     data-mode="enroll"
+     data-capture-url="{{ capture_url }}"
+     data-min-shots="{{ min_shots }}" data-max-shots="{{ max_shots }}">
+  <div class="camera-wrap">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas" hidden></canvas>
+  </div>
+  <div class="camera-controls">
+    <button id="btn-capture" class="btn btn-primary" disabled>Capture shot</button>
+    <span id="shot-count" class="pill">0 / {{ min_shots }} shots</span>
+  </div>
+  <div id="status" class="status-box" role="status" aria-live="polite" aria-atomic="true">Requesting camera…</div>
+  <p class="muted">Capture {{ min_shots }}–{{ max_shots }} clear, well-lit shots.
+    Vary the angle slightly between shots (straight, slight left, slight right,
+    slight up/down) for robust verification.</p>
+</div>
+
+<div class="inline-form">
+  <a class="btn" href="{{ back_url }}">{{ back_label }}</a>
+  {% if current_user.Role == 'admin' %}
+  <form method="post" action="{{ url_for('admin.enroll_reset', student_id=student.StudentID) }}"
+        onsubmit="return confirm('Clear all stored face data for this student?');">
+    <button class="btn btn-danger" type="submit">Clear face data</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/capture.js') }}"></script>
+{% endblock %}

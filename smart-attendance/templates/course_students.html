@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ course.CourseCode }} students{% endblock %}
+{% block content %}
+<p class="muted">{{ course.CourseCode }} — {{ course.CourseName }}
+  {% if course.Department %} · {{ course.Department }}{% endif %}</p>
+
+<div class="card">
+  <h2>Add a student to this course</h2>
+  <form method="post"
+        action="{{ url_for('lecturer.course_students_add', course_id=course.CourseID) }}"
+        class="inline-form">
+    <label>Matric No <input type="text" name="matric_no" required
+                            placeholder="2021/CS/006" autocomplete="off"></label>
+    <label>Full name <span class="muted">(only for new students)</span>
+      <input type="text" name="full_name" placeholder="e.g. Ngozi Okeke"></label>
+    <label>Level <span class="muted">(optional)</span>
+      <input type="text" name="level" value="400" size="4"></label>
+    <button class="btn btn-primary" type="submit">Add student</button>
+  </form>
+  <p class="muted">Already-registered students are added straight to the list.
+    A new matric number needs the full name too — the student is registered,
+    added here, and you capture their face shots next.</p>
+</div>
+
+<div class="card">
+  <h2>Course list ({{ roster|length }} student{{ 's' if roster|length != 1 }})</h2>
+  {% if roster %}
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Matric No</th><th>Full Name</th><th>Level</th>
+        <th>Face enrollment</th><th></th></tr></thead>
+      <tbody>
+      {% for s in roster %}
+        <tr>
+          <td>{{ s.MatricNo }}</td><td>{{ s.FullName }}</td>
+          <td>{{ s.Level or '—' }}</td>
+          <td>
+            {% if s.Shots >= min_shots %}<span class="pill pill-green">enrolled</span>
+            {% elif s.Shots > 0 %}<span class="pill pill-amber">{{ s.Shots }} / {{ min_shots }} shots</span>
+            {% else %}<span class="pill pill-red">not enrolled</span>{% endif %}
+          </td>
+          <td>
+            <div class="inline-form">
+              {% if s.Shots < min_shots %}
+              <a class="btn btn-small btn-primary"
+                 href="{{ url_for('lecturer.enroll', student_id=s.StudentID, course_id=course.CourseID) }}">
+                Capture face</a>
+              {% endif %}
+              <form method="post"
+                    action="{{ url_for('lecturer.course_students_remove', course_id=course.CourseID) }}"
+                    onsubmit="return confirm('Remove {{ s.FullName }} from {{ course.CourseCode }}? Attendance history is kept.');">
+                <input type="hidden" name="student_id" value="{{ s.StudentID }}">
+                <button class="btn btn-small btn-danger" type="submit">Remove</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="muted" style="margin-top: 0.8rem">Students marked
+    <span class="pill pill-red">not enrolled</span> can't verify at the kiosk yet —
+    use <strong>Capture face</strong> to record their face right here.
+    Students already <span class="pill pill-green">enrolled</span> are ready;
+    their stored face data is shared across courses and managed by the admin.</p>
+  {% else %}
+  <p class="muted">No students in this course yet — add them above. Only students
+    on this list can mark attendance in your sessions, and your reports cover
+    exactly this list.</p>
+  {% endif %}
+</div>
+
+<a class="btn" href="{{ url_for('lecturer.dashboard') }}">Back to dashboard</a>
+{% endblock %}

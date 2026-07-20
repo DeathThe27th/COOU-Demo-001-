@@ -1,0 +1,21 @@
+# --- secrets ---
+# DATABASE_URL contains the Supabase password. It is supplied through the
+# Render dashboard in production and a local .env in development. Never commit.
+.env
+.env.*
+!.env.example
+
+# --- python ---
+__pycache__/
+*.pyc
+.pytest_cache/
+venv/
+.venv/
+
+# --- local agent tooling (not part of the project) ---
+.claude/
+.agents/
+skills-lock.json
+
+# --- vendored template archive, not used at runtime ---
+mantis-free-react-admin-template-v2.2.0.zip

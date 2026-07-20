@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% from "_macros.html" import empty_state %}
+{% block title %}Manual corrections{% endblock %}
+{% block content %}
+{% if flagged %}
+<div class="card alert-card">
+  <h2>Flagged for manual review</h2>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Student</th><th>Matric No</th><th>Course</th><th>Date</th><th>Resolve</th></tr></thead>
+    <tbody>
+    {% for f in flagged %}
+      <tr>
+        <td>{{ f.FullName }}</td><td>{{ f.MatricNo }}</td>
+        <td>{{ f.CourseCode }}</td><td>{{ f.Date }}</td>
+        <td><a class="btn btn-small"
+               href="{{ url_for('admin.corrections', session_id=f.SessionID) }}">Open session</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endif %}
+
+<div class="card">
+  <form method="get" class="inline-form">
+    <label>Session
+      <select name="session_id" onchange="this.form.submit()">
+        <option value="">— select a session —</option>
+        {% for s in sessions %}
+          <option value="{{ s.SessionID }}" {% if s.SessionID == selected_session %}selected{% endif %}>
+            {{ s.CourseCode }} · {{ s.Date }} {{ s.StartTime[11:16] }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </form>
+
+  {% if rows %}
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Matric No</th><th>Name</th><th>Current status</th><th>Set status</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td>{{ r.MatricNo }}</td><td>{{ r.FullName }}</td>
+        <td><span class="pill {% if r.Status == 'present' %}pill-green
+          {% elif r.Status == 'flagged_manual_review' %}pill-amber{% else %}pill-red{% endif %}">
+          {{ r.Status or 'absent' }}</span></td>
+        <td>
+          <form method="post" action="{{ url_for('admin.set_record') }}" class="inline-form">
+            <input type="hidden" name="student_id" value="{{ r.StudentID }}">
+            <input type="hidden" name="session_id" value="{{ selected_session }}">
+            <button class="btn btn-small" name="status" value="present">Present</button>
+            <button class="btn btn-small" name="status" value="absent">Absent</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% elif selected_session %}
+    {{ empty_state(
+         "No students on this session's roster",
+         "Attendance can only be corrected for students enrolled in the course.
+          Add them to the course roster first, then return here.") }}
+  {% else %}
+    {{ empty_state(
+         "Select a session",
+         "Choose a session above to review its attendance and override any record
+          marked absent or flagged for manual review.") }}
+  {% endif %}
+</div>
+{% endblock %}

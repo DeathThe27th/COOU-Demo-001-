@@ -1,0 +1,12 @@
+flask>=3.0
+opencv-python-headless>=4.8
+numpy>=1.26
+pandas>=2.0
+openpyxl>=3.1
+waitress>=3.0
+# PostgreSQL backend, used only when DATABASE_URL is set (hosted deployment).
+# The offline SQLite demo path never imports this.
+psycopg[binary]>=3.2
+# Optional convenience: loads .env for local development. config.py degrades
+# gracefully if it is absent.
+python-dotenv>=1.0

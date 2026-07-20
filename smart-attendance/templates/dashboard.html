@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+{% if role == 'admin' %}
+  <div class="stat-grid">
+    <div class="stat">
+      <div class="stat-label">Students
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19.5c0-3 2.5-4.8 5.5-4.8s5.5 1.8 5.5 4.8"/><circle cx="16.5" cy="9.5" r="2.4"/><path d="M16.8 14.9c2.3.3 3.9 1.8 3.9 4"/></svg>
+      </div>
+      <div class="stat-num">{{ stats.students }}</div>
+      <div class="stat-hint">registered in the system</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Face-enrolled
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8V5.5A2 2 0 0 1 5.5 3.5H8"/><path d="M16 3.5h2.5a2 2 0 0 1 2 2V8"/><path d="M20.5 16v2.5a2 2 0 0 1-2 2H16"/><path d="M8 20.5H5.5a2 2 0 0 1-2-2V16"/><circle cx="12" cy="10.5" r="2.4"/><path d="M7.5 17c.8-2 2.5-3 4.5-3s3.7 1 4.5 3"/></svg>
+      </div>
+      <div class="stat-num">{{ stats.enrolled }}</div>
+      <div class="stat-hint">ready to verify at the kiosk</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Courses
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5V5.5"/><path d="M8 7.5h8"/></svg>
+      </div>
+      <div class="stat-num">{{ stats.courses }}</div>
+      <div class="stat-hint">across all departments</div>
+    </div>
+    <div class="stat {% if stats.flagged %}stat-warn{% endif %}">
+      <div class="stat-label">Flagged for review
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 21 19.5H3z"/><path d="M12 10v4"/><path d="M12 16.8v.2"/></svg>
+      </div>
+      <div class="stat-num">{{ stats.flagged }}</div>
+      <div class="stat-hint">{% if stats.flagged %}needs a manual decision{% else %}all clear{% endif %}</div>
+    </div>
+  </div>
+
+  {% if flagged %}
+  <div class="card">
+    <h2>Flagged for manual review</h2>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Student</th><th>Matric No</th><th>Course</th><th>Date</th><th></th></tr></thead>
+        <tbody>
+        {% for f in flagged %}
+          <tr>
+            <td>{{ f.FullName }}</td><td>{{ f.MatricNo }}</td>
+            <td>{{ f.CourseCode }}</td><td>{{ f.Date }}</td>
+            <td><a class="btn btn-small"
+                   href="{{ url_for('admin.corrections', session_id=f.SessionID) }}">Resolve</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+{% else %}
+
+  <div class="card">
+    <h2>Open a new attendance session</h2>
+    {% if courses %}
+    <form method="post" action="{{ url_for('lecturer.create_session') }}" class="inline-form">
+      <label>Course
+        <select name="course_id" required>
+          {% for c in courses %}
+            <option value="{{ c.CourseID }}">{{ c.CourseCode }} — {{ c.CourseName }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Duration (minutes)
+        <input type="number" name="duration_minutes" value="60" min="5" max="300">
+      </label>
+      <button class="btn btn-primary" type="submit">Open session</button>
+    </form>
+    {% else %}
+    <p class="muted">You have no courses yet — register your first course below,
+      then open a session for it.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>My courses</h2>
+    <form method="post" action="{{ url_for('lecturer.add_course') }}" class="inline-form">
+      <label>Code <input type="text" name="course_code" required placeholder="CSC 401"></label>
+      <label>Name <input type="text" name="course_name" required placeholder="Artificial Intelligence"></label>
+      <label>Department <input type="text" name="department" value="Computer Science"></label>
+      <button class="btn btn-primary" type="submit">Add course</button>
+    </form>
+    {% if courses %}
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Code</th><th>Name</th><th>Department</th>
+          <th>Students</th><th></th></tr></thead>
+        <tbody>
+        {% for c in courses %}
+          <tr><td>{{ c.CourseCode }}</td><td>{{ c.CourseName }}</td>
+            <td>{{ c.Department or '—' }}</td>
+            <td>{{ roster_counts.get(c.CourseID, 0) }}</td>
+            <td><a class="btn btn-small"
+                   href="{{ url_for('lecturer.course_students', course_id=c.CourseID) }}">
+                Manage students</a></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="muted">Courses you add appear only on your dashboard — sessions,
+      attendance and reports for them are yours alone.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Recent sessions</h2>
+    {% if sessions %}
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Course</th><th>Date</th><th>Start</th><th>End</th>
+          <th>Present</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        {% for s in sessions %}
+          <tr>
+            <td>{{ s.CourseCode }}</td><td>{{ s.Date }}</td>
+            <td>{{ s.StartTime[11:16] }}</td><td>{{ s.EndTime[11:16] }}</td>
+            <td>{{ s.PresentCount }}</td>
+            <td>{% if s.StartTime <= now <= s.EndTime %}
+                <span class="pill pill-green">active</span>
+                {% else %}<span class="pill">closed</span>{% endif %}</td>
+            <td><a class="btn btn-small"
+                   href="{{ url_for('lecturer.session_detail', session_id=s.SessionID) }}">View</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}<p class="muted">No sessions yet — open one above to start taking attendance.</p>{% endif %}
+  </div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+database/attendance.db
+models/*.onnx
+models/*.part
+.pytest_cache/

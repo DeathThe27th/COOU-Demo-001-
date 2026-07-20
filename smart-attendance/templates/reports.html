@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="card">
+  <form method="get" class="inline-form">
+    <label>Course
+      <select name="course_id" onchange="this.form.submit()">
+        {% for c in courses %}
+          <option value="{{ c.CourseID }}" {% if c.CourseID == course_id %}selected{% endif %}>
+            {{ c.CourseCode }} — {{ c.CourseName }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    {% if course_id %}
+    <a class="btn btn-primary"
+       href="{{ url_for('lecturer.export_xlsx', course_id=course_id) }}">
+       Download .xlsx (students × sessions × %)</a>
+    {% endif %}
+  </form>
+</div>
+
+{% if low %}
+<div class="card alert-card">
+  <h2>Below {{ threshold }}% attendance</h2>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Matric No</th><th>Name</th><th>Present</th><th>Attendance %</th></tr></thead>
+    <tbody>
+    {% for s in low %}
+      <tr><td>{{ s.MatricNo }}</td><td>{{ s.FullName }}</td>
+        <td>{{ s.PresentCount }} / {{ s.TotalSessions }}</td>
+        <td><span class="pill pill-red">{{ s.Percent }}%</span></td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>Cumulative summary ({{ sessions|length }} session{{ 's' if sessions|length != 1 }})</h2>
+  {% if summary %}
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Matric No</th><th>Name</th><th>Present</th><th>Attendance %</th></tr></thead>
+    <tbody>
+    {% for s in summary %}
+      <tr><td>{{ s.MatricNo }}</td><td>{{ s.FullName }}</td>
+        <td>{{ s.PresentCount }} / {{ s.TotalSessions }}</td>
+        <td>{{ s.Percent }}%</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}<p class="muted">No data yet.</p>{% endif %}
+</div>
+{% endblock %}

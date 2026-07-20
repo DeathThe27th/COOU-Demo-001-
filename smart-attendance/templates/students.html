@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import empty_state %}
+{% block title %}Students{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Register new student</h2>
+  <form method="post" action="{{ url_for('admin.add_student') }}" class="inline-form">
+    <label>Full name <input type="text" name="full_name" required></label>
+    <label>Matric No <input type="text" name="matric_no" required placeholder="2021/CS/006"></label>
+    <label>Department <input type="text" name="department" value="Computer Science"></label>
+    <label>Level <input type="text" name="level" value="400"></label>
+    <button class="btn btn-primary" type="submit">Add &amp; capture face</button>
+  </form>
+</div>
+
+<div class="card">
+  {% if not students %}
+    {{ empty_state(
+         "No students registered yet",
+         "Use the form above to add your first student. Once registered, capture
+          5–8 face shots so they can verify themselves at the attendance kiosk.") }}
+  {% else %}
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Matric No</th><th>Full Name</th><th>Department</th><th>Level</th>
+      <th>Face shots</th><th></th></tr></thead>
+    <tbody>
+    {% for s in students %}
+      <tr>
+        <td>{{ s.MatricNo }}</td><td>{{ s.FullName }}</td>
+        <td>{{ s.Department }}</td><td>{{ s.Level }}</td>
+        <td>
+          {% if s.Shots >= 5 %}<span class="pill pill-green">{{ s.Shots }} enrolled</span>
+          {% elif s.Shots > 0 %}<span class="pill pill-amber">{{ s.Shots }} (need ≥5)</span>
+          {% else %}<span class="pill pill-red">not enrolled</span>{% endif %}
+        </td>
+        <td><a class="btn btn-small" href="{{ url_for('admin.enroll', student_id=s.StudentID) }}">
+          {% if s.Shots %}Re-enroll{% else %}Capture face{% endif %}</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

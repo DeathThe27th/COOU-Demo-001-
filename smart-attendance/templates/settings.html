@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <form method="post" class="stack">
+    <label>Face similarity threshold (0–1)
+      <input type="number" name="similarity_threshold" step="0.01" min="0.05" max="0.95"
+             value="{{ similarity_threshold }}">
+      <span class="muted">Cosine similarity a live face must reach against the
+        student's enrolled embeddings. Higher = stricter. Tune empirically:
+        start ~0.5; OpenCV's published SFace benchmark value is 0.363 —
+        lower toward that if genuine students are being rejected.</span>
+    </label>
+    <label>Attendance alert threshold (%)
+      <input type="number" name="attendance_percent_threshold" step="1" min="0" max="100"
+             value="{{ attendance_percent_threshold|int }}">
+      <span class="muted">Students below this cumulative % are flagged on the
+        reports page.</span>
+    </label>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </form>
+</div>
+{% endblock %}

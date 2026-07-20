@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% from "_macros.html" import empty_state %}
+{% block title %}Courses{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Add course</h2>
+  <form method="post" action="{{ url_for('admin.add_course') }}" class="inline-form">
+    <label>Code <input type="text" name="course_code" required placeholder="CSC 401"></label>
+    <label>Name <input type="text" name="course_name" required></label>
+    <label>Lecturer
+      <select name="lecturer_id">
+        <option value="">— unassigned —</option>
+        {% for l in lecturers %}
+          <option value="{{ l.UserID }}">{{ l.FullName or l.Username }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Department <input type="text" name="department" value="Computer Science"></label>
+    <button class="btn btn-primary" type="submit">Add course</button>
+  </form>
+</div>
+
+<div class="card">
+  {% if not courses %}
+    {{ empty_state(
+         "No courses yet",
+         "Add a course above and assign it to a lecturer. Lecturers can only open
+          attendance sessions for courses assigned to them.") }}
+  {% else %}
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Code</th><th>Name</th><th>Lecturer</th><th>Department</th></tr></thead>
+    <tbody>
+    {% for c in courses %}
+      <tr><td>{{ c.CourseCode }}</td><td>{{ c.CourseName }}</td>
+        <td>{{ c.LecturerName or '—' }}</td><td>{{ c.Department }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

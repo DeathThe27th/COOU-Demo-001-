@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import empty_state %}
+{% block title %}My Attendance{% endblock %}
+{% block content %}
+{% if student %}
+<p class="muted">{{ student.FullName }} · {{ student.MatricNo }} ·
+  {{ student.Department }} · Level {{ student.Level }}</p>
+<div class="card">
+  {% if history %}
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Course</th><th>Session date</th><th>Status</th><th>Recorded at</th></tr></thead>
+    <tbody>
+    {% for h in history %}
+      <tr>
+        <td>{{ h.CourseCode }} — {{ h.CourseName }}</td>
+        <td>{{ h.Date }}</td>
+        <td><span class="pill {% if h.Status == 'present' %}pill-green
+          {% elif h.Status == 'flagged_manual_review' %}pill-amber{% else %}pill-red{% endif %}">
+          {{ h.Status }}</span></td>
+        <td>{{ h.Timestamp }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+    {{ empty_state(
+         "No attendance recorded yet",
+         "Once you verify your face at the attendance kiosk during a session, every
+          record shows up here with the course, date and exact time.") }}
+  {% endif %}
+</div>
+{% else %}
+<p>Your account is not linked to a student profile — contact the admin.</p>
+{% endif %}
+{% endblock %}

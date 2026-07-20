@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Session {{ sess.SessionID }}{% endblock %}
+{% block content %}
+<h1>{{ sess.CourseCode }} — {{ sess.CourseName }}</h1>
+<p class="muted">{{ sess.Date }} · {{ sess.StartTime[11:16] }}–{{ sess.EndTime[11:16] }}
+  {% if active %}<span class="pill pill-green">active</span>
+  {% else %}<span class="pill">closed</span>{% endif %}</p>
+
+<div class="inline-form">
+  {% if active %}
+  <a class="btn btn-primary" target="_blank"
+     href="{{ url_for('student.kiosk', session_id=sess.SessionID) }}">Open attendance kiosk</a>
+  <form method="post" action="{{ url_for('lecturer.close_session', session_id=sess.SessionID) }}">
+    <button class="btn btn-danger" type="submit">Close session</button>
+  </form>
+  {% endif %}
+  <a class="btn" href="{{ url_for('lecturer.export_xlsx', course_id=sess.CourseID) }}">
+    Export course .xlsx</a>
+</div>
+
+<div class="card">
+  <h2>Attendance {% if active %}<span class="muted">(live — auto-refreshing)</span>{% endif %}</h2>
+  <div class="table-scroll">
+  <table id="attendance-table"
+         data-live-url="{{ url_for('lecturer.session_live', session_id=sess.SessionID) }}"
+         data-active="{{ 1 if active else 0 }}">
+    <thead><tr><th>Matric No</th><th>Name</th><th>Status</th><th>Time</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td>{{ r.MatricNo }}</td><td>{{ r.FullName }}</td>
+        <td><span class="pill {% if r.Status == 'present' %}pill-green
+          {% elif r.Status == 'flagged_manual_review' %}pill-amber{% else %}pill-red{% endif %}">
+          {{ r.Status or 'absent' }}</span></td>
+        <td>{{ r.Timestamp or '—' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
