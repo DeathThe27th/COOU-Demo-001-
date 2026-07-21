@@ -10,9 +10,10 @@
 <body>
 {% macro nav_item(endpoint, label, icon) -%}
   <a class="nav-item {{ 'active' if request.endpoint == endpoint }}"
-     href="{{ url_for(endpoint) }}">
+     href="{{ url_for(endpoint) }}"
+     {% if request.endpoint == endpoint %}aria-current="page"{% endif %}>
     {{ icon | safe }}
-    {{ label }}
+    <span class="nav-item-label">{{ label }}</span>
   </a>
 {%- endmacro %}
 

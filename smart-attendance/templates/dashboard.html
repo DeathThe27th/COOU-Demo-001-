@@ -16,31 +16,44 @@
     </div>
   </div>
 
+  {# Each tile's corner control is a real link to the page that owns the
+     number, so the tile answers "how many" and the arrow answers
+     "show me which". `go` renders that control with an accessible name,
+     since an arrow glyph alone tells a screen reader nothing. #}
+  {% macro go(url, label) -%}
+    <a class="stat-go" href="{{ url }}" aria-label="{{ label }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M7 17 17 7"/><path d="M8.5 7H17v8.5"/>
+      </svg>
+    </a>
+  {%- endmacro %}
+
   <div class="stat-grid">
-    <div class="stat">
+    <div class="stat stat-hero">
       <div class="stat-label">Students
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19.5c0-3 2.5-4.8 5.5-4.8s5.5 1.8 5.5 4.8"/><circle cx="16.5" cy="9.5" r="2.4"/><path d="M16.8 14.9c2.3.3 3.9 1.8 3.9 4"/></svg>
+        {{ go(url_for('admin.students'), 'View all students') }}
       </div>
       <div class="stat-num">{{ stats.students }}</div>
       <div class="stat-hint">registered in the system</div>
     </div>
     <div class="stat">
       <div class="stat-label">Face-enrolled
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8V5.5A2 2 0 0 1 5.5 3.5H8"/><path d="M16 3.5h2.5a2 2 0 0 1 2 2V8"/><path d="M20.5 16v2.5a2 2 0 0 1-2 2H16"/><path d="M8 20.5H5.5a2 2 0 0 1-2-2V16"/><circle cx="12" cy="10.5" r="2.4"/><path d="M7.5 17c.8-2 2.5-3 4.5-3s3.7 1 4.5 3"/></svg>
+        {{ go(url_for('admin.students'), 'View face enrollment status') }}
       </div>
       <div class="stat-num">{{ stats.enrolled }}</div>
       <div class="stat-hint">ready to verify at the kiosk</div>
     </div>
     <div class="stat">
       <div class="stat-label">Courses
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5V5.5"/><path d="M8 7.5h8"/></svg>
+        {{ go(url_for('admin.courses'), 'View all courses') }}
       </div>
       <div class="stat-num">{{ stats.courses }}</div>
       <div class="stat-hint">across all departments</div>
     </div>
     <div class="stat {% if stats.flagged %}stat-warn{% endif %}">
       <div class="stat-label">Flagged for review
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 21 19.5H3z"/><path d="M12 10v4"/><path d="M12 16.8v.2"/></svg>
+        {{ go(url_for('admin.corrections'), 'Review flagged attendance') }}
       </div>
       <div class="stat-num">{{ stats.flagged }}</div>
       <div class="stat-hint">{% if stats.flagged %}needs a manual decision{% else %}all clear{% endif %}</div>
