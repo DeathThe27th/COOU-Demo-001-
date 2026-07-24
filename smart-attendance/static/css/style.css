@@ -239,13 +239,16 @@ a { color: var(--green-700); }
   padding: 0.45rem 0.55rem 0.45rem 1.35rem;
   min-height: 62px;
 }
-.header-title {
-  font-size: 0.95rem;
-  font-weight: 650;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.header-brand {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+.header-brand img {
+  width: 34px;
+  height: 34px;
+  display: block;
 }
 .header-spacer { flex: 1; }
 
