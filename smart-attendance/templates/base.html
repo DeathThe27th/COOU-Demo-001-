@@ -34,16 +34,9 @@
   <button class="backdrop" id="backdrop" aria-label="Close menu" tabindex="-1"></button>
 
   <aside class="sidebar">
-    <a class="sidebar-brand" href="{{ url_for('auth.home') }}">
-      <span class="brand-name">OMNIPRESENT
-        <span class="brand-sub">by COOU</span>
-      </span>
-    </a>
-
     <nav class="sidebar-nav">
       {% if current_user %}
         {% if current_user.Role == 'admin' %}
-          <div class="nav-label">Overview</div>
           {{ nav_item('admin.dashboard', 'Dashboard', icons['dashboard']) }}
           {{ nav_item('lecturer.dashboard', 'Sessions', icons['sessions']) }}
           <div class="nav-label">Manage</div>
@@ -54,11 +47,9 @@
           {{ nav_item('lecturer.report_view', 'Reports', icons['reports']) }}
           {{ nav_item('admin.settings', 'Settings', icons['settings']) }}
         {% elif current_user.Role == 'lecturer' %}
-          <div class="nav-label">Overview</div>
           {{ nav_item('lecturer.dashboard', 'Dashboard', icons['dashboard']) }}
           {{ nav_item('lecturer.report_view', 'Reports', icons['reports']) }}
         {% else %}
-          <div class="nav-label">Overview</div>
           {{ nav_item('student.my_attendance', 'My Attendance', icons['attendance']) }}
         {% endif %}
         <div class="nav-label">Attendance</div>
